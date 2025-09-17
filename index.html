@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoMarket AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+      :root {
+        --color-jungle-dark: #1a2a22;
+        --color-wood-dark: #3d352e;
+        --color-wood-medium: #5a4d41;
+        --color-wood-light: #8c7b6c;
+        --color-gold-accent: #d4a05d;
+        --color-gold-accent-hover: #e8b874;
+        --color-parchment: #f5f5dc;
+        --color-parchment-dark: #d1c9b3;
+        --color-danger: #c75b5b;
+        --color-success: #5e8d63;
+      }
+
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--color-jungle-dark) !important;
+        color: var(--color-parchment) !important;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Cinzel', serif;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      }
+
+      /* Remapping Tailwind colors */
+      .bg-slate-900, .bg-slate-900\/70, .bg-slate-900\/50, .bg-slate-900\/80 { background-color: var(--color-jungle-dark) !important; }
+      .bg-slate-800, .bg-slate-800\/50 { background-color: var(--color-wood-dark) !important; }
+      .bg-slate-700, .bg-slate-700\/50 { background-color: var(--color-wood-medium) !important; }
+      .hover\:bg-slate-700:hover, .hover\:bg-slate-700\/50:hover { background-color: var(--color-wood-medium) !important; opacity: 0.8; }
+      .hover\:bg-slate-600:hover { background-color: var(--color-wood-light) !important; }
+
+      .border-slate-800 { border-color: var(--color-wood-medium) !important; }
+      .border-slate-700 { border-color: var(--color-wood-medium) !important; }
+      .border-slate-600 { border-color: var(--color-wood-medium) !important; opacity: 0.7; }
+      .divide-slate-700 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-wood-medium) !important; }
+
+      .text-gray-200, .text-white { color: var(--color-parchment) !important; }
+      .text-gray-300 { color: var(--color-parchment) !important; opacity: 0.9; }
+      .text-gray-400, .text-gray-500 { color: var(--color-parchment-dark) !important; }
+      .placeholder-gray-400::placeholder { color: var(--color-parchment-dark) !important; opacity: 0.7; }
+      
+      /* Accent color remapping */
+      .text-cyan-200 { color: var(--color-gold-accent) !important; opacity: 0.8; }
+      .text-cyan-300 { color: var(--color-gold-accent) !important; }
+      .text-cyan-400, .text-purple-400 { color: var(--color-gold-accent) !important; }
+      .hover\:text-cyan-400:hover, .hover\:text-cyan-300:hover { color: var(--color-gold-accent-hover) !important; }
+      .bg-cyan-500 { background-color: var(--color-gold-accent) !important; }
+      .hover\:bg-cyan-600:hover { background-color: var(--color-gold-accent-hover) !important; }
+      .bg-cyan-800 { background-color: var(--color-wood-dark) !important; }
+      .border-cyan-400, .border-purple-500\/50, .border-cyan-500\/50 { border-color: var(--color-gold-accent) !important; }
+      .hover\:border-cyan-500:hover, .hover\:border-cyan-500\/50:hover { border-color: var(--color-gold-accent-hover) !important; }
+      .focus\:ring-cyan-500:focus, .focus\:ring-purple-500:focus { --tw-ring-color: var(--color-gold-accent) !important; }
+      .focus\:border-cyan-500:focus { border-color: var(--color-gold-accent) !important; }
+      .shadow-cyan-500\/10, .shadow-cyan-500\/20 { --tw-shadow-color: var(--color-gold-accent) !important; --tw-shadow: var(--tw-shadow-colored) !important; opacity: 0.5; }
+
+      /* Button Gradients */
+      .from-cyan-500.to-purple-600 { background-image: linear-gradient(to right, var(--color-gold-accent), #a1784d) !important; }
+      .hover\:from-cyan-600.hover\:to-purple-700:hover { background-image: linear-gradient(to right, var(--color-gold-accent-hover), #b58d5f) !important; }
+      .from-green-500.to-cyan-600 { background-image: linear-gradient(to right, var(--color-success), #7db583) !important; }
+      .hover\:from-green-600.hover\:to-cyan-700:hover { background-image: linear-gradient(to right, #6fb475, #8bc290) !important; }
+      .from-purple-500.to-indigo-600 { background-image: linear-gradient(to right, var(--color-gold-accent), #a1784d) !important; }
+      .hover\:from-purple-600.hover\:to-indigo-700:hover { background-image: linear-gradient(to right, var(--color-gold-accent-hover), #b58d5f) !important; }
+
+      /* Special colors */
+      .bg-red-500 { background-color: var(--color-danger) !important; }
+      .text-red-400 { color: var(--color-danger) !important; }
+      .bg-green-500, .bg-green-600 { background-color: var(--color-success) !important; }
+      .text-green-400 { color: var(--color-success) !important; }
+      .bg-blue-600 { background-color: var(--color-gold-accent) !important; }
+      .text-yellow-400 { color: #facc15 !important; }
+
+      /* Hero Background */
+      .theme-jumanji-hero-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(ellipse at center, rgba(26, 42, 34, 0.5) 0%, rgba(26, 42, 34, 1) 80%),
+          url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+        background-color: var(--color-jungle-dark);
+        z-index: 0;
+      }
+
+      @keyframes fade-in-out {
+        0% { opacity: 0; transform: translateY(-20px); }
+        10% { opacity: 1; transform: translateY(0); }
+        90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+      }
+      .animate-fade-in-out {
+        animation: fade-in-out 5s ease-in-out forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
